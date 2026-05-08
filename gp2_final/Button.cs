@@ -12,7 +12,6 @@ public class Button
     private SpriteFont _font;
     private bool _isHovered;
 
-    
     public string Text { get; set; }
 
     public event Action OnClick;
@@ -27,10 +26,8 @@ public class Button
 
     public void Update(MouseState mouseState, MouseState prevMouseState)
     {
-        
         _isHovered = _rectangle.Contains(mouseState.Position);
 
-        
         if (_isHovered && mouseState.LeftButton == ButtonState.Released && prevMouseState.LeftButton == ButtonState.Pressed)
         {
             OnClick?.Invoke();
@@ -39,16 +36,12 @@ public class Button
 
     public void Draw(SpriteBatch spriteBatch, Texture2D blankTexture)
     {
-       
         Color drawColor = _isHovered ? Color.Gray : _color;
-        
         
         spriteBatch.Draw(blankTexture, _rectangle, drawColor);
 
-        
         if (!string.IsNullOrEmpty(Text) && _font != null)
         {
-            
             Vector2 textSize = _font.MeasureString(Text);
             Vector2 textPosition = new Vector2(
                 _rectangle.X + (_rectangle.Width / 2) - (textSize.X / 2),

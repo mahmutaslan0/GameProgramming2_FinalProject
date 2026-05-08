@@ -11,12 +11,15 @@ public class Game1 : Game
 {
     private List<Soldier> _soldiers;
     private Texture2D _soldierTex;
+    
+    private List<Monster> _monsters;
+    private Texture2D _monsterTex;
+    
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
     private Texture2D _blankTexture;
     private SpriteFont _menuFont;
-    
     
     private MouseState _prevMouseState;
     private KeyboardState _prevKeyboardState; 
@@ -26,12 +29,13 @@ public class Game1 : Game
     private MainMenu _mainMenu;
     private SettingsMenu _settingsMenu;
 
-    
     private Texture2D _texBackground;
 
-    
     private Texture2D _playerCastleTex, _enemyCastleTex;
     private Castle _playerCastle, _enemyCastle;
+
+    private Button _btnSpawnSoldier;
+    private Button _btnSpawnMonster;
 
     public Game1()
     {
@@ -43,6 +47,8 @@ public class Game1 : Game
     protected override void Initialize()
     {
         _soldiers = new List<Soldier>();
+        _monsters = new List<Monster>();
+        
         _graphics.PreferredBackBufferWidth = 1280;
         _graphics.PreferredBackBufferHeight = 720;
         _graphics.ApplyChanges();
@@ -54,18 +60,18 @@ public class Game1 : Game
     protected override void LoadContent()
     {
         _soldierTex = Content.Load<Texture2D>("soldier");
+        _monsterTex = Content.Load<Texture2D>("canavar");
+        
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _blankTexture = new Texture2D(GraphicsDevice, 1, 1);
         _blankTexture.SetData(new[] { Color.White });
         _menuFont = Content.Load<SpriteFont>("MenuFont");
 
-        
         _texBackground = Content.Load<Texture2D>("background"); 
         
         _playerCastleTex = Content.Load<Texture2D>("dusman_kalesi"); 
         _enemyCastleTex = Content.Load<Texture2D>("cave");
 
-        
         _mainMenu = new MainMenu(_menuFont, _blankTexture, 
             onStart: () => _currentState = GameState.Level1, 
             onSettings: () => _currentState = GameState.Settings, 
@@ -74,9 +80,24 @@ public class Game1 : Game
         _settingsMenu = new SettingsMenu(_menuFont, _blankTexture, _graphics, 
             onBack: () => _currentState = GameState.MainMenu);
 
-        
         _playerCastle = new Castle(new Rectangle(-220, 120, 460, 420), 1000f, _playerCastleTex);
         _enemyCastle = new Castle(new Rectangle(580, 200, 320, 300), 1000f, _enemyCastleTex);
+
+        _btnSpawnSoldier = new Button(new Rectangle(20, 20, 120, 40), "SOLDIER", _menuFont, Color.White);
+        _btnSpawnSoldier.OnClick += () => 
+        {
+            System.Random rnd = new System.Random();
+            float randomY = rnd.Next(260, 370); 
+            _soldiers.Add(new Soldier(_soldierTex, new Vector2(150, randomY)));
+        };
+
+        _btnSpawnMonster = new Button(new Rectangle(660, 20, 120, 40), "MONSTER", _menuFont, Color.White);
+        _btnSpawnMonster.OnClick += () => 
+        {
+            System.Random rnd = new System.Random();
+            float randomY = rnd.Next(260, 370); 
+            _monsters.Add(new Monster(_monsterTex, new Vector2(680, randomY)));
+        };
     }
 
     protected override void Update(GameTime gameTime)
@@ -104,19 +125,17 @@ public class Game1 : Game
                 if (currentKeyboard.IsKeyDown(Keys.Escape))
                     _currentState = GameState.MainMenu;
 
-                
-                if (currentKeyboard.IsKeyDown(Keys.D2) && _prevKeyboardState.IsKeyUp(Keys.D2))
-                {
-                    System.Random rnd = new System.Random();
-                    
-                    float randomY = rnd.Next(250, 450); 
-                    _soldiers.Add(new Soldier(_soldierTex, new Vector2(150, randomY)));
-                }
+                _btnSpawnSoldier.Update(currentMouseState, _prevMouseState);
+                _btnSpawnMonster.Update(currentMouseState, _prevMouseState);
 
-                
                 foreach (var soldier in _soldiers)
                 {
                     soldier.Update(gameTime);
+                }
+
+                foreach (var monster in _monsters)
+                {
+                    monster.Update(gameTime);
                 }
                 break;
         }
@@ -138,19 +157,26 @@ public class Game1 : Game
             
             GraphicsDevice.Clear(Color.Black); 
 
-            
             _spriteBatch.Draw(_texBackground, new Rectangle(0, 0, 800, 600), null, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0.0f);
 
-            
             _playerCastle.Draw(_spriteBatch, _menuFont);
             _enemyCastle.Draw(_spriteBatch, _menuFont);
-            
             
             foreach (var soldier in _soldiers)
             {
                 soldier.Draw(_spriteBatch);
             }
+
+            foreach (var monster in _monsters)
+            {
+                monster.Draw(_spriteBatch);
+            }
             
+            _spriteBatch.End();
+
+            _spriteBatch.Begin(transformMatrix: scaleMatrix);
+            _btnSpawnSoldier.Draw(_spriteBatch, _blankTexture);
+            _btnSpawnMonster.Draw(_spriteBatch, _blankTexture);
             _spriteBatch.End();
         }
         else
