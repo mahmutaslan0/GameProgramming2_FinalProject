@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 
-namespace gp2_final; 
+namespace gp2_final;
 
 public class Button
 {
@@ -37,7 +37,7 @@ public class Button
     public void Draw(SpriteBatch spriteBatch, Texture2D blankTexture)
     {
         Color drawColor = _isHovered ? Color.Gray : _color;
-        
+
         spriteBatch.Draw(blankTexture, _rectangle, drawColor);
 
         if (!string.IsNullOrEmpty(Text) && _font != null)

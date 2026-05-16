@@ -3,61 +3,20 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace gp2_final;
 
-public class Soldier
+public class Soldier : Unit
 {
-    public Vector2 Position;
-    public Texture2D Texture;
-    public float Speed = 60f; 
-    
-     
-    public float Scale = 0.25f; 
-    
-    public float Depth;
-
-    
-    private int _totalFrames = 4; 
-    private int _currentFrame = 0;
-    private float _frameTimer = 0f;
-    private float _frameSpeed = 0.15f; 
-
-    public Soldier(Texture2D texture, Vector2 startPos)
-    {
-        Texture = texture;
-        Position = startPos;
+    public Soldier(Texture2D walkTex, Texture2D attackTex, Texture2D deathTex, Vector2 startPos) 
+        : base(walkTex, attackTex, deathTex, startPos, 6, 4, 10, 1f, 60f, 100f, 20f) 
+    { 
     }
 
-    public void Update(GameTime gameTime)
+    public override void Update(GameTime gameTime)
     {
-        float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
+        base.Update(gameTime);
         
-        _frameTimer += deltaTime;
-        if (_frameTimer >= _frameSpeed)
+        if (State == UnitState.Walking && !IsDead)
         {
-            _currentFrame++;
-            if (_currentFrame >= _totalFrames)
-                _currentFrame = 0; 
-            _frameTimer = 0f;
+            Position.X += Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
-
-        
-        Position.X += Speed * deltaTime;
-
-        
-        Depth = 0.8f + (Position.Y / 10000f);
-        Depth = MathHelper.Clamp(Depth, 0.0f, 1.0f);
-    }
-
-    public void Draw(SpriteBatch spriteBatch)
-    {
-        
-        int frameWidth = Texture.Width / _totalFrames;
-        int frameHeight = Texture.Height;
-
-        
-        Rectangle sourceRect = new Rectangle(_currentFrame * frameWidth, 0, frameWidth, frameHeight);
-
-        
-        spriteBatch.Draw(Texture, Position, sourceRect, Color.White, 0f, Vector2.Zero, Scale, SpriteEffects.None, Depth);
     }
 }
